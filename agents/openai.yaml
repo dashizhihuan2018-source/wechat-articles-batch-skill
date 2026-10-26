@@ -1,0 +1,4 @@
+interface:
+  display_name: "批量整理微信公众号文章skill"
+  short_description: "调研热门开源路线，批量采集经授权文章并去重归档、分类整理与验收"
+  default_prompt: "使用 $wechat-articles-batch 批量整理这些公众号文章，先确认链接、时间范围与授权，再采集、去重并生成可追溯索引。"
