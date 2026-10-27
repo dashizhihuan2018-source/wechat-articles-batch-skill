@@ -17,6 +17,8 @@ description: "批量整理微信公众号文章skill。用于公众号文章链�
 
 选型时读 [references/routes.md](references/routes.md)。要比较项目热度、维护状态或刷新来源时读 [references/research-2026-10-27.md](references/research-2026-10-27.md)。其中星数和接口状态是有日期的快照，执行前核验所选项目的 README、近期 issue、许可证和固定版本，不能只看 pushed_at。
 
+用户指定「Obsidian同步助手 / WeChat Obsync」时读 [references/obsync-route.md](references/obsync-route.md)：这是手动提交链接、第三方处理后同步的候选路线，不是整号历史采集器。已核验一篇真实公众号本地导出、13张本地图片及正文整理兼容性；另有界面观察、插件静态分析与合成回放，**当前在线采集过程尚未验收**。按 `source_url` 识别平台，不按“微信公众号文章”文件夹名判断；同步提示、文件存在或 ACK 均不能代替正文验收。
+
 | 用户手里有什么 | 优先路线 | 不能承诺 |
 |---|---|---|
 | 本地 Markdown/JSON/HTML 导出 | 本地转换与整理 | 自动恢复未导出的文章 |

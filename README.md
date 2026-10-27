@@ -19,6 +19,7 @@ git clone https://github.com/dashizhihuan2018-source/wechat-articles-batch-skill
 - [技能入口](SKILL.md)
 - [热门项目调研与来源](references/research-2026-10-27.md)
 - [技术路线](references/routes.md)
+- [Obsidian同步助手路线与真实本地样本核验](references/obsync-route.md)
 - [输入输出约定](references/data-contract.md)
 
 ## 本地整理器
@@ -37,5 +38,7 @@ Python 3.10+，无第三方运行依赖。它生成 Markdown、JSONL/CSV 索引�
 2026-10-27已通过Google原生浏览器检索及GitHub API核验候选。调研发现：高星项目可能已停维；微信读书最新文章接口不等于历史列表。项目对比记录星数与核验日期，不声称全网排名。公众号官方文档本次未核实；14项合成离线测试通过，不代表微信在线采集通过。
 
 正文版权归原作者；技能代码许可证不覆盖采集内容或第三方程序。默认只在本地保存授权资料，公开仓库不应包含文章正文、用户输入清单、凭据或个人笔记。
+
+补充核验：Obsync候选路线已有本机插件REA分析、4项合成回放，以及1篇真实公众号本地导出检查（13张本地图片均可读、正文整理保真）。另发现同名文章目录会混有其他平台内容，须按source_url筛选。上述不代表当前在线获取过程、原文完整性对照或整号100篇采集通过；真实样本及图片未公开。
 
 原创技能和脚本按 [MIT](LICENSE) 发布。© 2026 Nankong。
