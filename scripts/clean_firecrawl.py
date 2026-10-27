@@ -212,6 +212,15 @@ def extract_response(payload, url, expected_account="", fetched_at=""):
             record["status"], qc["reason"] = "blocked", "verification_page"
         else:
             record["status"], qc["reason"] = "missing_body", "missing_js_content"
+            # Firecrawl's cleaned HTML can remove the verification scripts and
+            # all visible challenge text. Inspect retained raw HTML offline only;
+            # a generic captcha library/word alone is not evidence of a challenge.
+            raw = data.get("rawHtml") or ""
+            if isinstance(raw, str) and len(raw.encode()) <= 8 * 1024 * 1024:
+                template = "secitptpage/template/verify" in raw
+                captcha = "TCaptcha.js" in raw or "cap_appid" in raw
+                if template and captcha:
+                    record["status"], qc["reason"] = "blocked", "verification_template"
         return record, qc
     def by_id(*names):
         return next((compact(plain(ids[n])) for n in names if n in ids and compact(plain(ids[n]))), "")

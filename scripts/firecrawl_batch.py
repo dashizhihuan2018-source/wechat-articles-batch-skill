@@ -70,7 +70,7 @@ def validate_api(api_url):
 
 def local_scrape(api_url, url):
     api_url = validate_api(api_url)
-    body = encoded(dict(url=url, formats=["markdown", "html"], proxy="basic", timeout=60000, maxAge=0))
+    body = encoded(dict(url=url, formats=["markdown", "html", "rawHtml"], proxy="basic", timeout=60000, maxAge=0))
     request = Request(api_url + "/v2/scrape", data=body, headers={"Content-Type": "application/json"})
     # Do not let shell proxy variables send this local request outside the machine.
     opener = build_opener(ProxyHandler({}), NoRedirect())
@@ -161,6 +161,10 @@ def collect(rows, output, api_url, expected_account, *, limit=5, sample_verified
             elif record["status"] == "error":
                 # Conservatively halt on ambiguous API errors; no retry storm or mode escalation.
                 state["stopped_reason"] = "api_or_response_error"
+            elif record["status"] == "missing_body":
+                # An empty cleaned page can hide a verification template. Review
+                # the saved response offline instead of probing the next article.
+                state["stopped_reason"] = "body_missing_requires_review"
             private_write(state_path, state)
             if state["stopped_reason"]:
                 break

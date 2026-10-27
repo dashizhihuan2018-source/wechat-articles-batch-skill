@@ -92,6 +92,26 @@ class CleanerTests(unittest.TestCase):
         r, _ = self.clean(dict(success=True, data=dict(markdown="请完成验证")))
         self.assertEqual(r["status"], "blocked")
 
+    def test_blank_cleaned_page_with_raw_verification_template(self):
+        payload = dict(success=True, data=dict(html='<div class="weui-msg"></div>',
+            rawHtml='<script src="https://captcha.gtimg.com/TCaptcha.js"></script>'
+                    '<script>seajs.use("secitptpage/template/verify.js")</script>'))
+        r, q = self.clean(payload)
+        self.assertEqual(r["status"], "blocked")
+        self.assertEqual(q["reason"], "verification_template")
+        self.assertEqual(r["content_md"], "")
+
+    def test_captcha_library_alone_is_not_proof(self):
+        r, q = self.clean(dict(success=True, data=dict(html='<div></div>',
+            rawHtml='<script src="https://captcha.gtimg.com/TCaptcha.js"></script>')))
+        self.assertEqual(r["status"], "missing_body")
+
+    def test_real_body_not_rejected_by_raw_script_markers(self):
+        payload = fixture()
+        payload["data"]["rawHtml"] = 'secitptpage/template/verify.js TCaptcha.js'
+        r, _ = self.clean(payload)
+        self.assertEqual(r["status"], "ok")
+
     def test_article_about_verification_is_not_blocked(self):
         r, _ = self.clean(fixture("<p>文章在介绍验证码的用途。</p>"))
         self.assertEqual(r["status"], "ok")
@@ -166,7 +186,18 @@ class BatchTests(unittest.TestCase):
     def test_missing_body_is_not_success(self):
         with tempfile.TemporaryDirectory() as directory:
             report = self.run_batch(self.rows(2), Path(directory) / "batch", scraper=lambda *_: fixture(""))
-            self.assertEqual(report["statuses"], {"missing_body": 2})
+            self.assertEqual(report["statuses"], {"missing_body": 1})
+            self.assertEqual(report["pending"], 1)
+            self.assertEqual(report["stopped_reason"], "body_missing_requires_review")
+
+    def test_raw_verification_stops_before_next_article(self):
+        payload = dict(success=True, data=dict(html='<div></div>',
+            rawHtml='secitptpage/template/verify.js TCaptcha.js'))
+        with tempfile.TemporaryDirectory() as directory:
+            report = self.run_batch(self.rows(2), Path(directory) / "batch", scraper=lambda *_: payload)
+            self.assertEqual(report["statuses"], {"blocked": 1})
+            self.assertEqual(report["pending"], 1)
+            self.assertEqual(report["stopped_reason"], "verification_template")
 
     def test_large_batch_requires_sample_gate(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -255,6 +286,7 @@ class BatchTests(unittest.TestCase):
             self.assertEqual(request.full_url, "http://127.0.0.1:3002/v2/scrape")
             self.assertEqual(body["proxy"], "basic")
             self.assertEqual(body["maxAge"], 0)
+            self.assertIn("rawHtml", body["formats"])
             self.assertNotIn("headers", body)
             self.assertTrue(result["success"])
 
